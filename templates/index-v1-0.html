@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="../static/css/index_v1.css"/>
+  <style>
+    .default_avatar{
+        width: 5.3rem;
+        height: 5.3rem;
+        border: 1px solid #00ff55;
+        border-radius: 100%;
+        overflow: hidden;
+     }
+    .default_avatar img {
+      max-height: 100%;
+      width: 5.3rem;
+     }
+
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+
+  <main>
+    <div class="main_">
+      <div class="left_">
+
+        <div class="card cardcolor">
+          <div class="title">
+            <h2>最新动态</h2>
+            <div>
+              <a href="#">查看更多</a>
+            </div>
+          </div>
+          <div class="maincontent">
+              <span style="color:#603e3e"></span>
+<!--              <div class="sk-spinner sk-spinner-chasing-dots">-->
+<!--                  <div class="sk-dot1"></div>-->
+<!--                  <div class="sk-dot2"></div>-->
+<!--              </div>-->
+          </div>
+          <hr>
+        </div>
+
+        <div class="card">
+          <div class="title">
+            <h2>班上学生男女比例情况</h2>
+          </div>
+          <div class="maincontent">
+
+<!--              <div class="sk-spinner sk-spinner-chasing-dots">-->
+<!--                  <div class="sk-dot1"></div>-->
+<!--                  <div class="sk-dot2"></div>-->
+<!--              </div>-->
+            <div id="Pie" style="width:350px; height:130px;"></div>
+
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="title">
+            <h2>项目团队</h2>
+            <div>
+              <a href="">查看更多</a>
+            </div>
+          </div>
+          <div class="maincontent" >
+
+            <div id="group_">
+              
+              <div>
+                <div class="default_avatar">
+                  <img src="../static/img/avatar/default_avatar.png" alt="">
+                </div>
+              <p style="margin: 0;margin-left: 1rem;">小尹</p>
+              </div>
+
+              <div>
+                <div class="default_avatar">
+                  <img src="../static/img/avatar/default_avatar.png" alt="">
+                </div>
+              <p style="margin: 0;margin-left: 1rem;">小尹</p>
+              </div>
+
+              <div>
+                <div class="default_avatar">
+                  <img src="../static/img/avatar/default_avatar.png" alt="">
+                </div>
+              <p style="margin: 0;margin-left: 1rem;">小尹</p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+
+      </div>
+      <div class="right_">
+
+        <div class="card">
+          <div class="title">
+            <h2>云标签</h2>
+            <h4 style="font-size: 12px;color:#009aff;">本站使用技术</h4>
+          </div>
+          <div class="yunbiaoqian">
+            <ul style="margin: 0;">
+
+              <li style="background-color:#366E9D;margin-top: 1.2rem;">材质库管理</li>
+              <li style="background-color:#D6D6D6;margin-top: 1.2rem;">模型库管理</li>
+              <li style="background-color:#DE9518;margin-top: 1.2rem;">评价方案管理</li>
+              <li style="background-color:#41B783;margin-top: 0.08rem;">灯具库管理</li>
+              <li style="background-color:#671DDF;margin-top: 0.08rem;">声音库管理</li>
+              <li style="background-color:#2fbeff;margin-top: 0.08rem;">用户信息管理</li>
+
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="title">
+            <h2>站点信息</h2>
+            <div>
+              <a href="">查看更多</a>
+            </div>
+          </div>
+          <div class="maincontent">
+            <div class="sk-spinner sk-spinner-chasing-dots">
+                  <div class="sk-dot1"></div>
+                  <div class="sk-dot2"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="bottom_left">
+      <p class="thank">Thank For</p>
+      <p class="site_info">
+      </p>
+      <p class="version">
+        <span>version</span>
+        <span>1.0.0</span>
+      </p>
+      <p>建站日期：2022-09-30</p>
+
+    </div>
+    <div class="bottom_right">
+      <div>
+        <div class="contact">
+          <div>
+            <img class="svg" src="../static/img/qq_icon.svg" alt="">
+            <img class="qq" src="../static/img/qq.png" alt="">
+          </div>
+        </div>
+        <p>
+          联系邮箱：2538026139@qq.com
+        </p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!--班上学生男女比例情况可视化-->
+<script src="https://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+<script>
+      $(
+          function () {
+              var chart = echarts.init(document.getElementById('Pie'), 'white', {renderer: 'canvas'});
+              $.ajax({
+                  type: "GET",
+                  url: "/index_v1_0/sex",
+                  dataType: 'json',
+                  success: function (result) {
+                      chart.setOption(result);
+                  }
+              });
+          }
+      )
+</script>
+
+</body>
+</html>

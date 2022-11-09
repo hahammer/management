@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>模型库管理</title>
+
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+
+    <!-- 引入样式 -->
+    <script src="../static/js/vue2.js"></script>
+    <script src="../static/js/axios-0.18.0.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script src="../static/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="../static/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../static/css/student_msg.css">
+
+</head>
+
+<body class="hold-transition">
+
+<div id="app">
+
+    <div class="content-header">
+
+        <h1>模型资源信息管理</h1>
+
+    </div>
+
+    <div class="app-container">
+
+        <div class="box">
+
+            <div class="filter-container">
+                <el-button type="primary" class="butT" @click="handleCreate()">添加模型</el-button>
+                <el-input placeholder="id" v-model="snameQuery" style="width: 200px;" class="filter-item"></el-input>
+                <el-button @click="conditionQuery()" class="dalfBut">查询</el-button>
+            </div>
+
+            <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+
+                <el-table-column type="index" label="序号" align="center"></el-table-column>
+                <el-table-column prop="model_name" label="产品名称" align="center"></el-table-column>
+                <el-table-column prop="model_no" label="产品编号" align="center"></el-table-column>
+                <el-table-column prop="model_factory" label="厂家名称" align="center"></el-table-column>
+                <el-table-column prop="model_size" label="尺寸" align="center"></el-table-column>
+                <el-table-column prop="model_texture" label="材质" align="center"></el-table-column>
+                <el-table-column prop="model_document" label="模型文件" align="center"></el-table-column>
+                <el-table-column align="center" width="50"  align="center" label="图片" width="50">
+                <template scope="scope">
+                    <img src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" width="32" height="32"/>
+                </template>
+            </el-table-column>
+
+
+                <el-table-column label="操作" align="center">
+
+                    <template slot-scope="scope">
+
+
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+
+                        <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+
+                    </template>
+
+                </el-table-column>
+
+            </el-table>
+
+            <!--分页组件-->
+            <div class="pagination-container">
+
+                <el-pagination
+                        class="pagiantion"
+
+                        @current-change="handleCurrentChange"
+
+                        :current-page="pagination.currentPage"
+
+                        :page-size="pagination.pageSize"
+
+                        layout="total, prev, pager, next, jumper"
+
+                        :total="pagination.total">
+
+                </el-pagination>
+
+            </div>
+
+            <!-- 添加模型标签弹层 -->
+            <div class="add-form">
+
+
+                <el-dialog title="添加模型" :visible.sync="dialogFormVisible" >
+
+                    <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
+
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型名称" prop="model_name">
+                                    <el-input v-model="formData.model_name"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型编号" prop="model_no">
+                                    <el-input v-model="formData.model_no"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="厂家名称" prop="model_factory">
+                                    <el-input v-model="formData.model_factory"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="尺寸" prop="model_size">
+                                    <el-input v-model="formData.model_size"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="材质" prop="model_texture">
+                                    <el-input v-model="formData.model_texture"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型文件" prop="model_document">
+                                    <el-input v-model="formData.model_document"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <form action="http://localhost:5000/uploader" method="POST" enctype="multipart/form-data">
+                              <input type="file" name="file"  />
+                              <input type="submit" value="提交" />
+                        </form>
+
+
+                    </el-form>
+
+                    <div slot="footer" class="dialog-footer" style="text-align: center;">
+
+                        <el-button @click="cancel()">取消</el-button>
+
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+
+                    </div>
+
+                </el-dialog>
+
+            </div>
+
+            <!-- 编辑标签弹层 -->
+            <div class="add-form">
+
+                <el-dialog title="修改模型信息" :visible.sync="dialogFormVisible4Edit">
+
+                    <el-form ref="dataEditForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
+
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型名称">
+                                    <el-input v-model="formData.model_name" placeholder="formData.model_name" ></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型编号">
+                                    <el-input v-model="formData.model_no" placeholder="formData.model_no" disabled="true"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="厂家名称">
+                                    <el-input v-model="formData.model_factory" placeholder="formData.model_factory"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="尺寸">
+                                    <el-input v-model="formData.model_size" placeholder="formData.model_size"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="材质">
+                                    <el-input v-model="formData.model_texture" placeholder="formData.model_texture"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="18">
+                                <el-form-item label="模型文件">
+                                    <el-input v-model="formData.model_document" placeholder="formData.model_document"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                    </el-form>
+
+                    <div slot="footer" class="dialog-footer">
+
+                        <el-button @click="cancel()">取消</el-button>
+
+                        <el-button type="primary" @click="handleEdit()">修改</el-button>
+
+                    </div>
+
+                </el-dialog>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+
+
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data:{
+            dataList: [],//当前页要展示的列表数据
+            dialogFormVisible: false,//添加表单是否可见
+            dialogFormVisible4Edit:false,//编辑表单是否可见
+            snameQuery: '', //学生名字条件查询
+            formData: {},//表单数据
+            rules: {//校验规则
+
+            },
+            pagination: {//分页相关模型数据
+                currentPage: 1, //当前页码
+                total: 0, //总记录数
+             pageSize:5,
+            }
+
+        },
+
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            // 调用查询全部数据
+            this.getAllModel();
+        },
+
+        methods: {
+
+
+            //页码
+            handleCurrentChange(currentPage) {
+                //修改页码值为当前选中的页码值
+                this.pagination.currentPage = currentPage;
+                // 执行查询
+                this.getAllModel();
+            },
+             //查询所有模型
+            getAllModel() {
+                axios.get("/modelSystem/getAllModel").then((resp)=>{
+                    this.dataList = resp.data.data;
+                    this.pagination.total = this.dataList.length;
+                });
+            },
+
+            //弹出添加窗口
+            handleCreate() {
+                this.dataList = [];
+                //打开弹窗
+                this.dialogFormVisible=true;
+            },
+
+
+
+            //添加
+            handleAdd () {
+                axios.post("/modelSystem/addModel",this.formData).then((resp)=>{
+                   if (resp.data.code == 200){
+                        //关闭弹窗
+                        this.dialogFormVisible=false;
+                        this.$message({
+                          showClose: true,
+                          message: resp.data.message,
+                          type: 'success'
+                        });
+                    }else{
+                         this.$message({
+                              showClose: true,
+                              message: resp.data.message,
+                              type: 'warning'
+                         });
+                    }
+                }).finally(()=>{
+                    //不管是否数据添加成功，都要重新加载数据
+                    this.formData = {};
+                    this.getAllModel();
+                });
+            },
+
+            //取消
+            cancel(){
+                this.dialogFormVisible = false;
+                this.dialogFormVisible4Edit = false;
+                this.formData = {};
+                this.getAllModel();
+            },
+
+            // 删除
+            handleDelete(row) {
+                console.log(row);
+                this.$confirm("此操作将永久删除<"+row.model_name+">所有信息，是否继续？", "提示", {type:"info"}).then(()=>{
+                    axios.get("/modelSystem/deleteModel/"+ row.id).then((resp)=>{
+                        if (resp.data.code == 200){
+                            this.$message({
+                              showClose: true,
+                              message: '删除成功',
+                              type: 'success'
+                            });
+                        }else{
+                            this.$message({
+                              showClose: true,
+                              message: '删除失败',
+                              type: 'warning'
+                            });
+                        }
+                    }).finally(()=>{
+                        this.getAllModel();
+                    });
+                }).catch(()=>{
+                    console.log("取消");
+                    this.$message({
+                      message: '取消操作',
+                      type: 'info'
+                    });
+                });
+            },
+
+            //弹出编辑窗口
+            handleUpdate(row) {
+                axios.get("/modelSystem/updateModel/"+row.id).then((resp)=>{
+                    this.formData = resp.data.data;
+                });
+                this.dialogFormVisible4Edit = true;
+            },
+            //修改
+            handleEdit() {
+             axios.post("/modelSystem/updateModel", this.formData).then((resp)=>{
+                    if (resp.data.code == 200){
+                        this.dialogFormVisible4Edit = false;
+                        this.$message({
+                              showClose: true,
+                              message: '修改成功',
+                              type: 'success'
+                         });
+                    }else{
+                         this.$message({
+                              showClose: true,
+                              message: '修改失败',
+                              type: 'warning'
+                         });
+                    }
+                }).finally(()=>{
+                    this.getAllModel();
+                });
+            },
+
+            //条件姓名查询
+            conditionQuery() {
+                axios.get("/modelSystem/conditionQuery/"+this.snameQuery).then((resp)=>{
+                    if (resp.data.code == 200){
+                        this.dataList = resp.data.data;
+                        this.pagination.total = this.dataList.length;
+                        this.$message({
+                              showClose: true,
+                              message: '查询成功',
+                              type: 'success'
+                         });
+                    }else{
+                         this.$message({
+                              showClose: true,
+                              message: '查询失败',
+                              type: 'warning'
+                         });
+                    }
+                });
+
+            },
+
+        }
+    })
+
+</script>
+</html>
